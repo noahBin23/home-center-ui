@@ -1,5 +1,5 @@
 <script setup>
-import { Search } from '@element-plus/icons-vue'
+import { InfoFilled, Search } from "@element-plus/icons-vue";
 import { ref, reactive, onMounted } from "vue"
 import { http } from "@/utils/http"
 import { ElMessage, ElMessageBox } from "element-plus"
@@ -182,10 +182,11 @@ const onBtnCreateConversion = function() {
               <span class="font-medium">AI 聊天 (关联知识库：{{ currentKnowledgeDetail === null ? "未关联" : currentKnowledgeDetail.name }})</span>
             </div>
           </template>
-          <div>
-            <el-card :class="item.role === 'ai' ? 'ai-content-card content-card' : 'human-content-card content-card'" v-for="item in messages" :key="item">
+          <div v-for="item in messages" :key="item">
+            <el-card :class="item.role === 'ai' ? 'ai-content-card content-card' : 'human-content-card content-card'" >
               <div>{{ item.content }}</div>
             </el-card>
+            <el-icon v-if="item.role === 'ai'"><InfoFilled /></el-icon>
           </div>
           <template #footer>
             <el-input v-model="userInput" placeholder="Please input" class="input-with-select" size="large">

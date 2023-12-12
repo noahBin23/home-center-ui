@@ -6,6 +6,7 @@ import { http } from "@/utils/http";
 
 const knowledgeId = ref(null)
 const knowLedgeList = reactive([])
+const knowLedgeDetail = ref(null)
 
 /**
  * 加载知识库列表
@@ -26,6 +27,7 @@ onMounted(async () => {
 const onKnowledgeChanged = async function(value) {
   await loadKnowledgeItemTableData()
 }
+const knowledgeItemLoading = ref(false)
 
 const onCreateNewKnowledge = function() {
   console.log("onCreateNewKnowledge")
@@ -62,7 +64,7 @@ const onCreateNewKnowledge = function() {
 const knowledgeItemTableData = reactive([])
 const knowledgeSourceTypeList = reactive([
   "text",
-  "PDF"
+  "pdf"
 ])
 const knowledgeItemFormRef = ref()
 const knowledgeItemFormData = reactive({
@@ -94,9 +96,12 @@ const loadKnowledgeItemTableData = async function() {
     })
     return
   }
+  knowledgeItemLoading.value = true
   const response = await http.get(`/api/ai-knowledge/detail/${knowledgeId.value}`)
   console.log("loadKnowledgeItemTableData response", response)
   knowledgeItemTableData.splice(0, knowledgeItemTableData.length, ...response.data.knowledge_items)
+  knowLedgeDetail.value = response.data
+  knowledgeItemLoading.value = false
 }
 
 // 对话框
@@ -161,13 +166,29 @@ const onBtnStartProcess = async function () {
   })
 }
 
+const onBtnClearDb = async function () {
+  if (knowledgeId.value === null || knowledgeId.value === undefined) {
+    ElMessage({
+      type: 'warning',
+      message: '请选择知识库',
+    })
+    return
+  }
+  const response = await http.post(`/api/ai-knowledge/clear-db/${knowledgeId.value}`, {})
+  console.log(response)
+  ElMessage({
+    type: 'success',
+    message: `清空数据库 \n ${JSON.stringify(response.msg)}`,
+  })
+  await loadKnowledgeItemTableData()
+}
+
 </script>
 <template>
   <div>
-    <h1>知识库</h1>
     <el-row>
       <el-col :span="6">
-        <el-card class="m-4 box-card main-card" shadow="never" :body-style="{ height: '75vh', overflow: 'auto' }">
+        <el-card class="m-4 box-card main-card" shadow="never" :body-style="{ height: '80vh', overflow: 'auto' }">
           <el-row>
             <el-col>
               <el-button @click="onCreateNewKnowledge">新建知识库</el-button>
@@ -186,14 +207,25 @@ const onBtnStartProcess = async function () {
         </el-card>
       </el-col>
       <el-col :span="18">
-        <el-card class="m-4 box-card main-card" shadow="never" :body-style="{ height: '75vh', overflow: 'auto' }">
+        <el-card class="m-4 box-card main-card" shadow="never" :body-style="{ height: '80vh', overflow: 'auto' }">
           <el-button @click="loadKnowledgeItemTableData">刷新数据</el-button>
           <el-button @click="onBtnAddItemClicked">添加内容</el-button>
           <el-button type="primary" @click="onBtnStartProcess">训练</el-button>
-          <el-table :data="knowledgeItemTableData" style="width: 100%">
+          <el-popconfirm title="确认删除?" @confirm="onBtnClearDb">
+            <template #reference>
+              <el-button type="danger">清空数据库</el-button>
+            </template>
+          </el-popconfirm>
+          <el-divider>基础信息</el-divider>
+          <el-descriptions title="" v-loading="knowledgeItemLoading">
+            <el-descriptions-item label="向量库类型">Elasticsearch</el-descriptions-item>
+            <el-descriptions-item label="向量库数据量">{{ knowLedgeDetail == null ? "null" : knowLedgeDetail.status.document_count }}</el-descriptions-item>
+          </el-descriptions>
+          <el-divider></el-divider>
+          <el-table :data="knowledgeItemTableData" style="width: 100%" v-loading="knowledgeItemLoading">
             <el-table-column prop="id" label="ID" width="100" />
             <el-table-column prop="name" label="Name" width="180" />
-            <el-table-column prop="knowledge_id" label="Knowledge Id" width="150" />
+            <el-table-column prop="source_type" label="类型" width="150" />
             <el-table-column prop="intro" label="Intro" />
             <el-table-column prop="content" label="Content" >
               <template #default="scope">

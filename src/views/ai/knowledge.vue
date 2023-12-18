@@ -8,13 +8,16 @@ const knowledgeId = ref(null)
 const knowLedgeList = reactive([])
 const knowLedgeDetail = ref(null)
 
+const loadKnowledgeListLoading = ref(false)
 /**
  * 加载知识库列表
  * @returns {Promise<void>}
  */
 const loadKnowledgeList = async function() {
+  loadKnowledgeListLoading.value = true
   const response = await http.get("/api/ai-knowledge/list")
   knowLedgeList.splice(0, knowLedgeList.length, ...response.data)
+  loadKnowledgeListLoading.value = false
 }
 onMounted(async () => {
   await loadKnowledgeList()
@@ -29,35 +32,55 @@ const onKnowledgeChanged = async function(value) {
 }
 const knowledgeItemLoading = ref(false)
 
+// 创建知识库相关
+const dialogCreateNewKnowledgeVisible = ref(false)
+const createNewKnowledgeFormData = reactive({
+  name: "",
+  db_type: "elasticsearch",
+})
+const knowledgeFormRef = ref()
+const knowledgeFormRules = reactive({
+  name: [
+    { required: true, message: 'Please input name', trigger: 'blur' },
+  ],
+  db_type: [
+    { required: true, message: 'Please select db type', trigger: 'blur' },
+  ]
+})
+
 const onCreateNewKnowledge = function() {
-  console.log("onCreateNewKnowledge")
-  ElMessageBox.prompt('请输入名称', '提示', {
-    confirmButtonText: '确认',
-    cancelButtonText: '取消',
-  }).then(async ({ value }) => {
-    if (value === null || value === undefined || value === "") {
-      ElMessage({
-        type: 'info',
-        message: '请输入名称',
+  dialogCreateNewKnowledgeVisible.value = true
+}
+
+const onBtnCreateNewKnowledgeSubmit = async function(formEl) {
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      http.post("/api/ai-knowledge/create", {
+        data: {
+          name: createNewKnowledgeFormData.name,
+          db_type: createNewKnowledgeFormData.db_type,
+        },
+      }).then(response => {
+        console.log(response)
+        ElMessage({
+          type: 'success',
+          message: `创建成功`,
+        })
+        dialogCreateNewKnowledgeVisible.value = false
+        loadKnowledgeList()
+      }).catch(error => {
+        console.log(error)
+        ElMessage({
+          type: 'error',
+          message: `创建失败${error}`,
+        })
       })
-      return
+    } else {
+      ElMessage({
+        type: 'error',
+        message: `参数校验错误`,
+      })
     }
-    const response = http.post("/api/ai-knowledge/create", {
-      data: {
-        name: value
-      },
-    })
-    console.log(response)
-    ElMessage({
-      type: 'success',
-      message: `创建成功`,
-    })
-    await loadKnowledgeList()
-  }).catch(() => {
-    ElMessage({
-      type: 'info',
-      message: '取消创建',
-    })
   })
 }
 
@@ -104,7 +127,7 @@ const loadKnowledgeItemTableData = async function() {
   knowledgeItemLoading.value = false
 }
 
-// 对话框
+// 添加item对话框
 const addItemDialogVisible = ref(false)
 
 const onBtnAddItemClicked = function() {
@@ -197,7 +220,7 @@ const onBtnClearDb = async function () {
           <el-divider>
             <h4>知识库列表</h4>
           </el-divider>
-          <el-row>
+          <el-row v-loading="loadKnowledgeListLoading">
             <el-col>
               <el-radio-group v-model="knowledgeId" @change="onKnowledgeChanged">
                 <el-radio :label="item.id" v-for="item in knowLedgeList" :key="item.id">{{ item.name }}</el-radio>
@@ -218,7 +241,7 @@ const onBtnClearDb = async function () {
           </el-popconfirm>
           <el-divider>基础信息</el-divider>
           <el-descriptions title="" v-loading="knowledgeItemLoading">
-            <el-descriptions-item label="向量库类型">Elasticsearch</el-descriptions-item>
+            <el-descriptions-item label="向量库类型">{{ knowLedgeDetail == null ? "null" : knowLedgeDetail.knowledge.db_type }}</el-descriptions-item>
             <el-descriptions-item label="向量库数据量">{{ knowLedgeDetail == null ? "null" : knowLedgeDetail.status.document_count }}</el-descriptions-item>
           </el-descriptions>
           <el-divider></el-divider>
@@ -263,6 +286,25 @@ const onBtnClearDb = async function () {
       <span class="dialog-footer">
         <el-button @click="addItemDialogVisible = false">Cancel</el-button>
         <el-button type="primary" @click="onBtnConfirmAddItemClicked(knowledgeItemFormRef)">Confirm</el-button>
+      </span>
+      </template>
+    </el-dialog>
+    <el-dialog v-model="dialogCreateNewKnowledgeVisible" title="添加知识库" width="40%">
+      <el-form :model="createNewKnowledgeFormData" :rules="knowledgeFormRules" label-width="120px" ref="knowledgeFormRef">
+        <el-form-item label="Name" prop="name">
+          <el-input v-model="createNewKnowledgeFormData.name" />
+        </el-form-item>
+        <el-form-item label="DB Type" prop="db_type">
+          <el-select v-model="createNewKnowledgeFormData.db_type" placeholder="please select your db type">
+            <el-option label="Elasticsearch" value="elasticsearch" />
+            <el-option label="Chroma" value="chroma" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogCreateNewKnowledgeVisible = false">取消</el-button>
+        <el-button type="primary" @click="onBtnCreateNewKnowledgeSubmit(knowledgeFormRef)">提交</el-button>
       </span>
       </template>
     </el-dialog>

@@ -7,10 +7,10 @@ import Line from "./components/Line.vue";
 import { getReleases } from "@/api/list";
 import TypeIt from "@/components/ReTypeit";
 import { useWindowSize } from "@vueuse/core";
-import { ref, computed, markRaw } from "vue";
-import Github from "./components/Github.vue";
+import { ref, computed, markRaw, onMounted } from "vue";
 import { randomColor } from "@pureadmin/utils";
 import { useRenderFlicker } from "@/components/ReFlicker";
+import Yiju from "./components/Yiju.vue";
 
 defineOptions({
   name: "Welcome"
@@ -105,15 +105,8 @@ getReleases().then(({ data }) => {
         </el-card>
       </el-col>
 
-      <el-col
-        :xs="24"
-        :sm="24"
-        :md="12"
-        :lg="12"
-        :xl="12"
-        class="mb-[18px]"
-        v-motion
-        :initial="{
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" class="mb-[18px]"
+        v-motion:initial="{
           opacity: 0,
           y: 100
         }"
@@ -125,28 +118,14 @@ getReleases().then(({ data }) => {
           }
         }"
       >
-        <el-card
-          shadow="never"
-          :style="{ height: `calc(${height}px - 35vh - 250px)` }"
-        >
+        <el-card shadow="never" :style="{ height: `calc(${height}px - 35vh - 250px)` }">
           <template #header>
-            <a
-              :class="titleClass"
-              href="https://github.com/xiaoxian521"
-              target="_black"
-            >
-              <TypeIt
-                :className="'type-it1'"
-                :values="['GitHub信息']"
-                :cursor="false"
-                :speed="120"
-              />
-            </a>
+              <TypeIt :className="'type-it1'" :values="['壹句']" :cursor="false" :speed="120"/>
           </template>
           <el-skeleton animated :rows="7" :loading="loading">
             <template #default>
               <el-scrollbar :height="`calc(${height}px - 35vh - 340px)`">
-                <Github />
+                <Yiju />
               </el-scrollbar>
             </template>
           </el-skeleton>

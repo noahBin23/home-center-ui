@@ -44,7 +44,8 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
       host: "0.0.0.0",
       // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
       proxy: {
-        '/api': "http://127.0.0.1:8000"
+        '/api/open-service/youdao_yiju': "https://blessedbin.top",
+        '/api': "http://127.0.0.1:8000",
       }
     },
     plugins: getPluginsList(command, VITE_CDN, VITE_COMPRESSION),

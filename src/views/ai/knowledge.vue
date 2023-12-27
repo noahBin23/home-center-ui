@@ -132,6 +132,12 @@ const addItemDialogVisible = ref(false)
 
 const onBtnAddItemClicked = function() {
   addItemDialogVisible.value = true
+  if (addItemUploadRef.value != null) {
+    addItemUploadRef.value.clearFiles()
+  }
+  if (knowledgeItemFormRef.value != null) {
+    knowledgeItemFormRef.value.resetFields()
+  }
 }
 const onBtnConfirmAddItemClicked = async function(formEl) {
   console.log("onBtnConfirmAddItemClicked")
@@ -171,6 +177,20 @@ const onBtnConfirmAddItemClicked = async function(formEl) {
       console.log('error submit!', fields)
     }
   })
+}
+
+
+const addItemUploadRef = ref(null)
+const uploading = ref(false)
+const onBeforeUploadFile = function () {
+  uploading.value = true
+  return true
+}
+const onUploadFileSuccess = function(response, file, fileList) {
+  console.log("onUploadFileSuccess", response, file, fileList)
+  knowledgeItemFormData.content = response.data.object_name
+  uploading.value = false
+  ElMessage.success("文件上传成功")
 }
 
 const onBtnStartProcess = async function () {
@@ -279,7 +299,20 @@ const onBtnClearDb = async function () {
           </el-select>
         </el-form-item>
         <el-form-item label="Content" prop="content">
-          <el-input v-model="knowledgeItemFormData.content" />
+          <el-col :span="18">
+            <el-input v-model="knowledgeItemFormData.content" />
+          </el-col>
+          <el-col :span="6">
+            <el-upload ref="addItemUploadRef" class="file-upload" action="/api/files/upload" :limit="1"
+                       :show-file-list="false"
+                       :with-credentials="true"
+                       :before-upload="onBeforeUploadFile"
+                       :auto-upload="true" :on-success="onUploadFileSuccess">
+              <template #trigger>
+                <el-button type="primary" v-loading="uploading" :disabled="uploading">select file</el-button>
+              </template>
+            </el-upload>
+          </el-col>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -310,4 +343,9 @@ const onBtnClearDb = async function () {
     </el-dialog>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+.file-upload {
+    display: flex;
+    margin-left: 20px;
+}
+</style>

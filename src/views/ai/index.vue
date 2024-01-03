@@ -55,9 +55,13 @@ const sendMessage = async function() {
 
       for (const parsedLine of parsedLines) {
         if (parsedLine.answer) {
-          const content = parsedLine.answer.content
+          const content = parsedLine.answer
           // Update the UI with the new content
           messages[messages.length - 1].content += content
+        } else if (parsedLine.docs) {
+          messages[messages.length - 1].docs = parsedLine.docs
+        } else if (parsedLine.condense_question) {
+          messages[messages.length - 1].condense_question = parsedLine.condense_question
         }
       }
     }
@@ -186,7 +190,27 @@ const onBtnCreateConversion = function() {
             <el-card :class="item.role === 'ai' ? 'ai-content-card content-card' : 'human-content-card content-card'" >
               <div>{{ item.content }}</div>
             </el-card>
-            <el-icon v-if="item.role === 'ai'"><InfoFilled /></el-icon>
+            <el-popover :width="500" v-if="item.role === 'ai'"
+              popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"
+            >
+              <template #reference>
+                <el-icon><InfoFilled /></el-icon>
+              </template>
+              <template #default>
+                <div
+                  class="demo-rich-conent"
+                  style="display: flex; gap: 16px; flex-direction: column; height: 400px; overflow: scroll"
+                >
+                  <h3>关联的原文数据</h3>
+
+                  <p style="color: darkblue">condense question: {{ item.condense_question }}</p>
+
+                  <p class="demo-rich-content__desc" style="margin: 0" v-for="doc in item.docs">
+                    【start index: {{ doc.metadata ? doc.metadata.start_index : "未知start index" }}】{{ doc.page_content }}
+                  </p>
+                </div>
+              </template>
+            </el-popover>
           </div>
           <template #footer>
             <el-input v-model="userInput" placeholder="Please input" class="input-with-select" size="large">

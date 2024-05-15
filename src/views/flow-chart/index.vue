@@ -5,13 +5,10 @@ import "@logicflow/extension/lib/style/index.css";
 
 import LogicFlow from "@logicflow/core";
 import { ref, unref, onMounted } from "vue";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { BpmnNode } from "@/components/ReFlowChart/src/config";
 import { Snapshot, BpmnElement, Menu } from "@logicflow/extension";
 import { Control, NodePanel, DataDialog } from "@/components/ReFlowChart";
 import { toLogicflowData } from "@/components/ReFlowChart/src/adpterForTurbo";
-
-import SetUp from "@iconify-icons/ep/set-up";
 
 defineOptions({
   name: "FlowChart"
@@ -71,34 +68,40 @@ onMounted(() => {
         <span class="font-medium">
           流程图组件，采用开源的
           <el-link
-            href="http://logic-flow.org/"
+            href="https://site.logic-flow.cn/docs/#/zh/guide/start"
             target="_blank"
-            :icon="useRenderIcon(SetUp)"
             style="margin: 0 4px 5px; font-size: 16px"
           >
             LogicFlow
           </el-link>
         </span>
       </div>
+      <el-link
+        class="mt-2"
+        href="https://github.com/pure-admin/vue-pure-admin/blob/main/src/views/flow-chart"
+        target="_blank"
+      >
+        代码位置 src/views/flow-chart
+      </el-link>
     </template>
     <div class="logic-flow-view">
       <!-- 辅助工具栏 -->
       <Control
-        class="demo-control"
         v-if="lf"
+        class="demo-control"
         :lf="lf"
         :catTurboData="false"
         @catData="catData"
       />
       <!-- 节点面板 -->
-      <NodePanel :lf="lf" :nodeList="nodeList" />
+      <NodePanel v-if="lf" :lf="lf" :nodeList="nodeList" />
       <!-- 画布 -->
       <div id="turbo" />
       <!-- 数据查看面板 -->
       <el-dialog
+        v-model="dataVisible"
         class="flow-dialog"
         title="数据"
-        v-model="dataVisible"
         width="50%"
       >
         <el-scrollbar>
@@ -112,7 +115,7 @@ onMounted(() => {
 <style scoped>
 #turbo {
   width: 100%;
-  height: 70vh;
+  height: 65vh;
 }
 
 .logic-flow-view {

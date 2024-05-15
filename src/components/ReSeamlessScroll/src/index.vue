@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, unref, nextTick } from "vue";
-import type { CSSProperties, PropType } from "vue";
+import {
+  type PropType,
+  type CSSProperties,
+  ref,
+  unref,
+  nextTick,
+  computed
+} from "vue";
 import {
   tryOnMounted,
   tryOnUnmounted,
@@ -301,7 +307,7 @@ function touchMove(e) {
 
 function touchEnd() {
   if (!unref(canTouchScroll)) return;
-  // eslint-disable-next-line prefer-const
+
   let timer: any;
   const direction = unref(options).direction;
   delay.value = 50;
@@ -496,25 +502,25 @@ defineExpose({
 </script>
 
 <template>
-  <div :ref="'wrap' + props.classOption['key']">
+  <div :ref="'wrap' + classOption['key']">
     <div
-      :style="leftSwitch"
       v-if="navigation"
+      :style="leftSwitch"
       :class="leftSwitchClass"
       @click="leftSwitchClick"
     >
       <slot name="left-switch" />
     </div>
     <div
-      :style="rightSwitch"
       v-if="navigation"
+      :style="rightSwitch"
       :class="rightSwitchClass"
       @click="rightSwitchClick"
     >
       <slot name="right-switch" />
     </div>
     <div
-      :ref="'realBox' + props.classOption['key']"
+      :ref="'realBox' + classOption['key']"
       :style="pos"
       @mouseenter="enter"
       @mouseleave="leave"
@@ -523,10 +529,10 @@ defineExpose({
       @touchend="touchEnd"
       @mousewheel.passive="wheel"
     >
-      <div :ref="'slotList' + props.classOption['key']" :style="float">
+      <div :ref="'slotList' + classOption['key']" :style="float">
         <slot />
       </div>
-      <div v-html="copyHtml" :style="float" />
+      <div :style="float" v-html="copyHtml" />
     </div>
   </div>
 </template>

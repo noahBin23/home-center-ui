@@ -5,12 +5,18 @@ import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import croppingUpload from "../upload.vue";
+import userAvatar from "@/assets/user.jpg";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
-import { type PaginationProps } from "@pureadmin/table";
+import type { PaginationProps } from "@pureadmin/table";
+import ReCropperPreview from "@/components/ReCropperPreview";
 import type { FormItemProps, RoleFormItemProps } from "../utils/types";
-import { hideTextAtIndex, getKeyList, isAllEmpty } from "@pureadmin/utils";
+import {
+  getKeyList,
+  isAllEmpty,
+  hideTextAtIndex,
+  deviceDetection
+} from "@pureadmin/utils";
 import {
   getRoleIds,
   getDeptList,
@@ -80,8 +86,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         <el-image
           fit="cover"
           preview-teleported={true}
-          src={row.avatar}
-          preview-src-list={Array.of(row.avatar)}
+          src={row.avatar || userAvatar}
+          preview-src-list={Array.of(row.avatar || userAvatar)}
           class="w-[24px] h-[24px] rounded-full align-middle"
         />
       ),
@@ -104,7 +110,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       cellRenderer: ({ row, props }) => (
         <el-tag
           size={props.size}
-          type={row.sex === 1 ? "danger" : ""}
+          type={row.sex === 1 ? "danger" : null}
           effect="plain"
         >
           {row.sex === 1 ? "女" : "男"}
@@ -261,6 +267,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       type: "success"
     });
     tableRef.value.getTableRef().clearSelection();
+    onSearch();
   }
 
   async function onSearch() {
@@ -321,6 +328,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       },
       width: "46%",
       draggable: true,
+      fullscreen: deviceDetection(),
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm, { ref: formRef }),
@@ -342,7 +350,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
               // 实际开发先调用新增接口，再进行下面操作
               chores();
             } else {
-              // 实际开发先调用编辑接口，再进行下面操作
+              // 实际开发先调用修改接口，再进行下面操作
               chores();
             }
           }
@@ -351,16 +359,18 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     });
   }
 
+  const cropRef = ref();
   /** 上传头像 */
   function handleUpload(row) {
     addDialog({
       title: "裁剪、上传头像",
       width: "40%",
-      draggable: true,
       closeOnClickModal: false,
+      fullscreen: deviceDetection(),
       contentRenderer: () =>
-        h(croppingUpload, {
-          imgSrc: row.avatar,
+        h(ReCropperPreview, {
+          ref: cropRef,
+          imgSrc: row.avatar || userAvatar,
           onCropper: info => (avatarInfo.value = info)
         }),
       beforeSure: done => {
@@ -368,7 +378,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
         done(); // 关闭弹框
         onSearch(); // 刷新表格数据
-      }
+      },
+      closeCallBack: () => cropRef.value.hidePopover()
     });
   }
 
@@ -385,6 +396,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       width: "30%",
       draggable: true,
       closeOnClickModal: false,
+      fullscreen: deviceDetection(),
       contentRenderer: () => (
         <>
           <ElForm ref={ruleFormRef} model={pwdForm}>
@@ -467,6 +479,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       },
       width: "400px",
       draggable: true,
+      fullscreen: deviceDetection(),
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(roleForm),
@@ -503,6 +516,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     selectedNum,
     pagination,
     buttonClass,
+    deviceDetection,
     onSearch,
     resetForm,
     onbatchDel,

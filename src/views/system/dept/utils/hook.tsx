@@ -6,8 +6,8 @@ import { getDeptList } from "@/api/system";
 import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
-import { type FormItemProps } from "../utils/types";
-import { cloneDeep, isAllEmpty } from "@pureadmin/utils";
+import type { FormItemProps } from "../utils/types";
+import { cloneDeep, isAllEmpty, deviceDetection } from "@pureadmin/utils";
 
 export function useDept() {
   const form = reactive({
@@ -57,7 +57,7 @@ export function useDept() {
     {
       label: "操作",
       fixed: "right",
-      width: 160,
+      width: 210,
       slot: "operation"
     }
   ];
@@ -120,6 +120,7 @@ export function useDept() {
       },
       width: "40%",
       draggable: true,
+      fullscreen: deviceDetection(),
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm, { ref: formRef }),
@@ -141,7 +142,7 @@ export function useDept() {
               // 实际开发先调用新增接口，再进行下面操作
               chores();
             } else {
-              // 实际开发先调用编辑接口，再进行下面操作
+              // 实际开发先调用修改接口，再进行下面操作
               chores();
             }
           }
@@ -168,7 +169,7 @@ export function useDept() {
     onSearch,
     /** 重置 */
     resetForm,
-    /** 新增、编辑部门 */
+    /** 新增、修改部门 */
     openDialog,
     /** 删除部门 */
     handleDelete,

@@ -4,7 +4,6 @@ import { ref, computed, watch, getCurrentInstance } from "vue";
 
 import Dept from "@iconify-icons/ri/git-branch-line";
 // import Reset from "@iconify-icons/ri/restart-line";
-import Search from "@iconify-icons/ep/search";
 import More2Fill from "@iconify-icons/ri/more-2-fill";
 import OfficeBuilding from "@iconify-icons/ep/office-building";
 import LocationCompany from "@iconify-icons/ep/add-location";
@@ -18,7 +17,7 @@ interface Tree {
   children?: Tree[];
 }
 
-const props = defineProps({
+defineProps({
   treeLoading: Boolean,
   treeData: Array
 });
@@ -37,8 +36,9 @@ const defaultProps = {
 const buttonClass = computed(() => {
   return [
     "!h-[20px]",
+    "!text-sm",
     "reset-margin",
-    "!text-gray-500",
+    "!text-[var(--el-text-color-regular)]",
     "dark:!text-white",
     "dark:hover:!text-primary"
   ];
@@ -95,15 +95,15 @@ defineExpose({ onTreeReset });
 
 <template>
   <div
-    v-loading="props.treeLoading"
+    v-loading="treeLoading"
     class="h-full bg-bg_color overflow-auto"
-    :style="{ minHeight: `calc(100vh - 133px)` }"
+    :style="{ minHeight: `calc(100vh - 141px)` }"
   >
     <div class="flex items-center h-[34px]">
       <el-input
+        v-model="searchValue"
         class="ml-2"
         size="small"
-        v-model="searchValue"
         placeholder="请输入部门名称"
         clearable
       >
@@ -111,7 +111,7 @@ defineExpose({ onTreeReset });
           <el-icon class="el-input__icon">
             <IconifyIconOffline
               v-show="searchValue.length === 0"
-              :icon="Search"
+              icon="ri:search-line"
             />
           </el-icon>
         </template>
@@ -153,7 +153,7 @@ defineExpose({ onTreeReset });
     <el-divider />
     <el-tree
       ref="treeRef"
-      :data="props.treeData"
+      :data="treeData"
       node-key="id"
       size="small"
       :props="defaultProps"
@@ -191,8 +191,8 @@ defineExpose({ onTreeReset });
               data.type === 1
                 ? OfficeBuilding
                 : data.type === 2
-                ? LocationCompany
-                : Dept
+                  ? LocationCompany
+                  : Dept
             "
           />
           {{ node.label }}

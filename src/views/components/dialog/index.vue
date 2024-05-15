@@ -2,8 +2,8 @@
 import { useRouter } from "vue-router";
 import { h, createVNode, ref } from "vue";
 import { message } from "@/utils/message";
-import forms, { type FormProps } from "./form.vue";
 import formPrimitive from "./formPrimitive.vue";
+import forms, { type FormProps } from "./form.vue";
 import { cloneDeep, debounce } from "@pureadmin/utils";
 import {
   addDialog,
@@ -20,8 +20,8 @@ const router = useRouter();
 
 function onBaseClick() {
   addDialog({
-    title: "基本使用",
-    contentRenderer: () => <p>弹框内容-基本使用</p> // jsx 语法 （注意在.vue文件启用jsx语法，需要在script开启lang="tsx"）
+    title: "基础用法",
+    contentRenderer: () => <p>弹框内容-基础用法</p> // jsx 语法 （注意在.vue文件启用jsx语法，需要在script开启lang="tsx"）
   });
 }
 
@@ -43,9 +43,11 @@ function onFullscreenClick() {
 
 function onFullscreenIconClick() {
   addDialog({
-    title: "全屏按钮",
+    title: "全屏按钮和全屏事件",
     fullscreenIcon: true,
-    contentRenderer: () => <p>弹框内容-全屏按钮</p>
+    fullscreenCallBack: ({ options, index }) =>
+      message(options.fullscreen ? "全屏" : "非全屏"),
+    contentRenderer: () => <p>弹框内容-全屏按钮和全屏事件</p>
   });
 }
 
@@ -203,7 +205,7 @@ function onCloseCallBackClick() {
       } else if (args?.command === "sure") {
         text = "您点击了确定按钮";
       } else {
-        text = "您点击了右上角关闭按钮或者空白页";
+        text = "您点击了右上角关闭按钮或空白页或按下了esc键";
       }
       message(text);
     },
@@ -278,6 +280,16 @@ function onUpdateClick() {
   });
 }
 
+// popconfirm 确认框
+function onPopconfirmClick() {
+  addDialog({
+    width: "30%",
+    title: "popconfirm确认框示例",
+    popconfirm: { title: "是否确认修改当前数据" },
+    contentRenderer: () => <p>点击右下方确定按钮看看效果吧</p>
+  });
+}
+
 // 结合Form表单（第一种方式，弹框关闭立刻恢复初始值）通过 props 属性接收子组件的 prop 并赋值
 function onFormOneClick() {
   addDialog({
@@ -301,7 +313,9 @@ function onFormOneClick() {
       } else if (args?.command === "sure") {
         message(`您点击了确定按钮，当前表单数据为 ${text}`);
       } else {
-        message(`您点击了右上角关闭按钮或者空白页，当前表单数据为 ${text}`);
+        message(
+          `您点击了右上角关闭按钮或空白页或按下了esc键，当前表单数据为 ${text}`
+        );
       }
     }
   });
@@ -422,7 +436,7 @@ function onBeforeSureClick() {
     title: "点击底部确定按钮的回调",
     contentRenderer: () => (
       <p>
-        弹框内容-点击底部确定按钮的回调（会暂停弹框的关闭，经常用于新增、编辑弹框内容后调用接口）
+        弹框内容-点击底部确定按钮的回调（会暂停弹框的关闭，经常用于新增、修改弹框内容后调用接口）
       </p>
     ),
     beforeSure: (done, { options, index }) => {
@@ -443,7 +457,7 @@ function onBeforeSureClick() {
     <template #header>
       <div class="card-header">
         <span class="font-medium">
-          二次封装 element-plus 的
+          二次封装 Element Plus 的
           <el-link
             href="https://element-plus.org/zh-CN/component/dialog.html"
             target="_blank"
@@ -454,18 +468,25 @@ function onBeforeSureClick() {
           ，采用函数式调用弹框组件（更多操作实例请参考
           <span
             class="cursor-pointer text-primary"
-            @click="router.push({ name: 'Dept' })"
-            >系统管理页面</span
+            @click="router.push({ name: 'SystemDept' })"
           >
+            系统管理页面
+          </span>
           ）
         </span>
       </div>
+      <el-link
+        href="https://github.com/pure-admin/vue-pure-admin/tree/main/src/views/components/dialog"
+        target="_blank"
+      >
+        代码位置 src/views/components/dialog
+      </el-link>
     </template>
     <el-space wrap>
-      <el-button @click="onBaseClick"> 基本使用 </el-button>
+      <el-button @click="onBaseClick"> 基础用法 </el-button>
       <el-button @click="onDraggableClick"> 可拖拽 </el-button>
       <el-button @click="onFullscreenClick"> 全屏 </el-button>
-      <el-button @click="onFullscreenIconClick"> 全屏按钮 </el-button>
+      <el-button @click="onFullscreenIconClick"> 全屏按钮和全屏事件 </el-button>
       <el-button @click="onModalClick"> 无背景遮罩层 </el-button>
       <el-button @click="onStyleClick"> 自定义弹出位置 </el-button>
       <el-button @click="onoOpenDelayClick"> 延时2秒打开弹框 </el-button>
@@ -485,6 +506,7 @@ function onBeforeSureClick() {
       <el-button @click="onCloseCallBackClick"> 关闭后的回调 </el-button>
       <el-button @click="onNestingClick"> 嵌套的弹框 </el-button>
       <el-button @click="onUpdateClick"> 更改弹框自身属性值 </el-button>
+      <el-button @click="onPopconfirmClick">popconfirm确认框</el-button>
     </el-space>
     <el-divider />
     <el-space wrap>
@@ -510,7 +532,7 @@ function onBeforeSureClick() {
         点击底部取消按钮的回调（会暂停弹框的关闭）
       </el-button>
       <el-button @click="onBeforeSureClick">
-        点击底部确定按钮的回调（会暂停弹框的关闭，经常用于新增、编辑弹框内容后调用接口）
+        点击底部确定按钮的回调（会暂停弹框的关闭，经常用于新增、修改弹框内容后调用接口）
       </el-button>
     </el-space>
   </el-card>

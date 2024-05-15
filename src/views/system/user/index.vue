@@ -11,12 +11,11 @@ import Password from "@iconify-icons/ri/lock-password-line";
 import More from "@iconify-icons/ep/more-filled";
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
-import Search from "@iconify-icons/ep/search";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
 
 defineOptions({
-  name: "User"
+  name: "SystemUser"
 });
 
 const treeRef = ref();
@@ -33,6 +32,7 @@ const {
   selectedNum,
   pagination,
   buttonClass,
+  deviceDetection,
   onSearch,
   resetForm,
   onbatchDel,
@@ -51,27 +51,29 @@ const {
 </script>
 
 <template>
-  <div class="flex justify-between">
+  <div :class="['flex', 'justify-between', deviceDetection() && 'flex-wrap']">
     <tree
       ref="treeRef"
-      class="min-w-[200px] mr-2"
+      :class="['mr-2', deviceDetection() ? 'w-full' : 'min-w-[200px]']"
       :treeData="treeData"
       :treeLoading="treeLoading"
       @tree-select="onTreeSelect"
     />
-    <div class="w-[calc(100%-200px)]">
+    <div
+      :class="[deviceDetection() ? ['w-full', 'mt-2'] : 'w-[calc(100%-200px)]']"
+    >
       <el-form
         ref="formRef"
         :inline="true"
         :model="form"
-        class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
+        class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
       >
         <el-form-item label="用户名称：" prop="username">
           <el-input
             v-model="form.username"
             placeholder="请输入用户名称"
             clearable
-            class="!w-[160px]"
+            class="!w-[180px]"
           />
         </el-form-item>
         <el-form-item label="手机号码：" prop="phone">
@@ -79,7 +81,7 @@ const {
             v-model="form.phone"
             placeholder="请输入手机号码"
             clearable
-            class="!w-[160px]"
+            class="!w-[180px]"
           />
         </el-form-item>
         <el-form-item label="状态：" prop="status">
@@ -87,7 +89,7 @@ const {
             v-model="form.status"
             placeholder="请选择"
             clearable
-            class="!w-[160px]"
+            class="!w-[180px]"
           >
             <el-option label="已开启" value="1" />
             <el-option label="已关闭" value="0" />
@@ -96,7 +98,7 @@ const {
         <el-form-item>
           <el-button
             type="primary"
-            :icon="useRenderIcon(Search)"
+            :icon="useRenderIcon('ri:search-line')"
             :loading="loading"
             @click="onSearch"
           >
@@ -148,9 +150,10 @@ const {
             </el-popconfirm>
           </div>
           <pure-table
-            row-key="id"
             ref="tableRef"
+            row-key="id"
             adaptive
+            :adaptiveConfig="{ offsetBottom: 108 }"
             align-whole="center"
             table-layout="auto"
             :loading="loading"
@@ -174,7 +177,7 @@ const {
                 type="primary"
                 :size="size"
                 :icon="useRenderIcon(EditPen)"
-                @click="openDialog('编辑', row)"
+                @click="openDialog('修改', row)"
               >
                 修改
               </el-button>
@@ -259,6 +262,10 @@ const {
 
 :deep(.el-button:focus-visible) {
   outline: none;
+}
+
+.main-content {
+  margin: 24px 24px 0 !important;
 }
 
 .search-form {

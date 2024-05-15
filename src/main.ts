@@ -3,12 +3,12 @@ import router from "./router";
 import { setupStore } from "@/store";
 import { useI18n } from "@/plugins/i18n";
 import { getPlatformConfig } from "./config";
-import { createApp, Directive } from "vue";
-import ElementPlus from "element-plus";
 import { MotionPlugin } from "@vueuse/motion";
 import { useEcharts } from "@/plugins/echarts";
+import { createApp, type Directive } from "vue";
+import { useVxeTable } from "@/plugins/vxeTable";
+import { useElementPlus } from "@/plugins/elementPlus";
 import { injectResponsiveStorage } from "@/utils/responsive";
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 import Table from "@pureadmin/table";
 import PureDescriptions from "@pureadmin/descriptions";
@@ -26,17 +26,13 @@ import "./assets/iconfont/iconfont.css";
 
 const app = createApp(App);
 
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
-}
-
 // 自定义指令
 import * as directives from "@/directives";
 Object.keys(directives).forEach(key => {
   app.directive(key, (directives as { [key: string]: Directive })[key]);
 });
 
-// 全局注册`@iconify/vue`图标库
+// 全局注册@iconify/vue图标库
 import {
   IconifyIconOffline,
   IconifyIconOnline,
@@ -50,6 +46,12 @@ app.component("FontIcon", FontIcon);
 import { Auth } from "@/components/ReAuth";
 app.component("Auth", Auth);
 
+// 全局注册vue-tippy
+import "tippy.js/dist/tippy.css";
+import "tippy.js/themes/light.css";
+import VueTippy from "vue-tippy";
+app.use(VueTippy);
+
 getPlatformConfig(app).then(async config => {
   setupStore(app);
   app.use(router);
@@ -58,8 +60,9 @@ getPlatformConfig(app).then(async config => {
   app
     .use(MotionPlugin)
     .use(useI18n)
-    .use(ElementPlus)
+    .use(useElementPlus)
     .use(Table)
+    .use(useVxeTable)
     .use(PureDescriptions)
     .use(useEcharts);
   app.mount("#app");

@@ -56,19 +56,26 @@ function onReset() {
   <el-card shadow="never">
     <template #header>
       <div class="card-header">
-        <span class="font-medium">自定义防抖、截流、文本复制、长按指令</span>
+        <p class="font-medium">自定义防抖、截流、文本复制、长按指令</p>
+        <el-link
+          class="mt-2"
+          href="https://github.com/pure-admin/vue-pure-admin/blob/main/src/views/able/directives.vue"
+          target="_blank"
+        >
+          代码位置 src/views/able/directives.vue
+        </el-link>
       </div>
     </template>
     <div class="mb-2">
       防抖指令（连续输入，只会执行第一次点击事件，立即执行）
       <el-input
+        v-model="search"
         v-optimize="{
           event: 'input',
           fn: onInput,
           immediate: true,
           timeout: 1000
         }"
-        v-model="search"
         class="!w-[200px]"
         clearable
         @clear="onInput"
@@ -77,8 +84,8 @@ function onReset() {
     <div class="mb-2">
       防抖指令（连续输入，只会执行最后一次事件，延后执行）
       <el-input
-        v-optimize="{ event: 'input', fn: onInputTwo, timeout: 400 }"
         v-model="searchTwo"
+        v-optimize="{ event: 'input', fn: onInputTwo, timeout: 400 }"
         class="!w-[200px]"
         clearable
       />
@@ -86,13 +93,13 @@ function onReset() {
     <div>
       防抖指令（连续输入，只会执行最后一次事件，延后执行，传参用法）
       <el-input
+        v-model="searchThree"
         v-optimize="{
           event: 'input',
           fn: onInputThree,
           timeout: 400,
           params: { name: '小明', sex: '男' }
         }"
-        v-model="searchThree"
         class="!w-[200px]"
         clearable
       />
@@ -103,8 +110,8 @@ function onReset() {
     <div class="mb-2">
       节流指令（连续输入，每一秒只会执行一次事件）
       <el-input
-        v-optimize:throttle="{ event: 'input', fn: onInputFour, timeout: 1000 }"
         v-model="searchFour"
+        v-optimize:throttle="{ event: 'input', fn: onInputFour, timeout: 1000 }"
         class="!w-[200px]"
         clearable
       />
@@ -112,12 +119,12 @@ function onReset() {
     <div>
       节流指令（连续输入，每一秒只会执行一次事件，传参用法）
       <el-input
+        v-model="searchFive"
         v-optimize:throttle="{
           event: 'input',
           fn: onInputFive,
           params: { name: '小明', sex: '男' }
         }"
-        v-model="searchFive"
         class="!w-[200px]"
         clearable
       />
@@ -127,7 +134,7 @@ function onReset() {
 
     <div class="mb-2">
       文本复制指令（双击输入框内容即可复制）
-      <el-input v-copy="searchSix" v-model="searchSix" class="!w-[200px]" />
+      <el-input v-model="searchSix" v-copy="searchSix" class="!w-[200px]" />
     </div>
     <div>
       文本复制指令（自定义触发事件，单击复制）

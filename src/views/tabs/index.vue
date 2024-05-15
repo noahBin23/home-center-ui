@@ -48,14 +48,21 @@ function onCloseTags() {
 <template>
   <el-card shadow="never">
     <template #header>
-      <div>标签页复用，超出限制自动关闭</div>
+      <div class="font-medium">标签页复用，超出限制自动关闭</div>
+      <el-link
+        class="mt-2"
+        href="https://github.com/pure-admin/vue-pure-admin/blob/main/src/views/tabs"
+        target="_blank"
+      >
+        代码位置 src/views/tabs
+      </el-link>
     </template>
     <div class="flex flex-wrap items-center">
       <p>query传参模式：</p>
       <el-button
-        class="m-2"
         v-for="index in 6"
         :key="index"
+        class="m-2"
         @click="toDetail({ id: index }, 'query')"
       >
         打开{{ index }}详情页
@@ -74,9 +81,9 @@ function onCloseTags() {
     <div class="flex flex-wrap items-center">
       <p>params传参模式：</p>
       <el-button
-        class="m-2"
         v-for="index in 6"
         :key="index"
+        class="m-2"
         @click="toDetail({ id: index }, 'params')"
       >
         打开{{ index }}详情页
@@ -85,7 +92,8 @@ function onCloseTags() {
 
     <el-divider />
     <el-tree-select
-      class="w-[300px]"
+      v-model="currentValues"
+      class="!w-[300px]"
       node-key="uniqueId"
       placeholder="请选择要关闭的标签"
       clearable
@@ -99,7 +107,6 @@ function onCloseTags() {
         disabled: 'disabled'
       }"
       :data="treeData"
-      v-model="currentValues"
     >
       <template #default="{ data }">
         <span>{{ transformI18n(data.meta.title) }}</span>

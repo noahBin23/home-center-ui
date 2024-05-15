@@ -1,5 +1,5 @@
 import forage from "localforage";
-import { LocalForage, ProxyStorage, ExpiresData } from "./types.d";
+import type { LocalForage, ProxyStorage, ExpiresData } from "./types.d";
 
 class StorageProxy implements ProxyStorage {
   protected storage: LocalForage;
@@ -79,6 +79,22 @@ class StorageProxy implements ProxyStorage {
         .clear()
         .then(() => {
           resolve();
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
+  /**
+   * @description 获取数据仓库中所有的key
+   */
+  public async keys() {
+    return new Promise<string[]>((resolve, reject) => {
+      this.storage
+        .keys()
+        .then(keys => {
+          resolve(keys);
         })
         .catch(err => {
           reject(err);

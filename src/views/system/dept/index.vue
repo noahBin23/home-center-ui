@@ -6,12 +6,11 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
-import Search from "@iconify-icons/ep/search";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
 
 defineOptions({
-  name: "Dept"
+  name: "SystemDept"
 });
 
 const formRef = ref();
@@ -35,14 +34,14 @@ const {
       ref="formRef"
       :inline="true"
       :model="form"
-      class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
+      class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
       <el-form-item label="部门名称：" prop="name">
         <el-input
           v-model="form.name"
           placeholder="请输入部门名称"
           clearable
-          class="!w-[200px]"
+          class="!w-[180px]"
         />
       </el-form-item>
       <el-form-item label="状态：" prop="status">
@@ -59,7 +58,7 @@ const {
       <el-form-item>
         <el-button
           type="primary"
-          :icon="useRenderIcon(Search)"
+          :icon="useRenderIcon('ri:search-line')"
           :loading="loading"
           @click="onSearch"
         >
@@ -72,7 +71,7 @@ const {
     </el-form>
 
     <PureTableBar
-      title="部门列表（仅演示，操作后不生效）"
+      title="部门管理（仅演示，操作后不生效）"
       :columns="columns"
       :tableRef="tableRef?.getTableRef()"
       @refresh="onSearch"
@@ -90,7 +89,7 @@ const {
         <pure-table
           ref="tableRef"
           adaptive
-          :adaptiveConfig="{ offsetBottom: 32 }"
+          :adaptiveConfig="{ offsetBottom: 45 }"
           align-whole="center"
           row-key="id"
           showOverflowTooltip
@@ -113,9 +112,19 @@ const {
               type="primary"
               :size="size"
               :icon="useRenderIcon(EditPen)"
-              @click="openDialog('编辑', row)"
+              @click="openDialog('修改', row)"
             >
-              编辑
+              修改
+            </el-button>
+            <el-button
+              class="reset-margin"
+              link
+              type="primary"
+              :size="size"
+              :icon="useRenderIcon(AddFill)"
+              @click="openDialog('新增', { parentId: row.id } as any)"
+            >
+              新增
             </el-button>
             <el-popconfirm
               :title="`是否确认删除部门名称为${row.name}的这条数据`"
@@ -141,6 +150,14 @@ const {
 </template>
 
 <style lang="scss" scoped>
+:deep(.el-table__inner-wrapper::before) {
+  height: 0;
+}
+
+.main-content {
+  margin: 24px 24px 0 !important;
+}
+
 .search-form {
   :deep(.el-form-item) {
     margin-bottom: 12px;
